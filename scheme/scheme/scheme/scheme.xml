@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>/home/artem/projects/cpm_shoot/scheme/scheme/scheme/scheme.kicad_sch</source>
+    <date>Пн 28 ноя 2022 11:09:49</date>
+    <tool>Eeschema 6.0.9</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title/>
+        <company/>
+        <rev/>
+        <date/>
+        <source>scheme.kicad_sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="M1">
+      <value>Motor_A</value>
+      <libsource lib="Motor" part="Motor_DC" description="DC Motor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="scheme.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8f72a555-51a2-4955-8346-c6c45a643a40</tstamps>
+    </comp>
+    <comp ref="M2">
+      <value>Motor_B</value>
+      <libsource lib="Motor" part="Motor_DC" description="DC Motor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="scheme.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>674c4655-3eba-4a52-8d88-fa46b5b5e4d6</tstamps>
+    </comp>
+    <comp ref="U1">
+      <value>LM2596S-5</value>
+      <footprint>Package_TO_SOT_SMD:TO-263-5_TabPin3</footprint>
+      <datasheet>http://www.ti.com/lit/ds/symlink/lm2596.pdf</datasheet>
+      <libsource lib="Regulator_Switching" part="LM2596S-5" description="5V 3A Step-Down Voltage Regulator, TO-263"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="scheme.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9463b573-2a09-441e-a62d-b8cac55f06c5</tstamps>
+    </comp>
+    <comp ref="U2">
+      <value>LM2596S-3.3</value>
+      <footprint>Package_TO_SOT_SMD:TO-263-5_TabPin3</footprint>
+      <datasheet>http://www.ti.com/lit/ds/symlink/lm2596.pdf</datasheet>
+      <libsource lib="Regulator_Switching" part="LM2596S-3.3" description="3.3V 3A Step-Down Voltage Regulator, TO-263"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="scheme.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4092b72d-b5da-42fd-a782-86717749fcb7</tstamps>
+    </comp>
+    <comp ref="U3">
+      <value>ESP3212</value>
+      <footprint>ESP32-footprints-Lib:ESP3212</footprint>
+      <libsource lib="ESP32-footprints-Shem-Lib" part="ESP3212" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="scheme.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c5ba1c6d-602e-4c7f-9f85-9962e530c8fb</tstamps>
+    </comp>
+    <comp ref="U4">
+      <value>DRV8833</value>
+      <footprint>Package_SO:TSSOP-16_4.4x5mm_P0.65mm</footprint>
+      <datasheet>http://www.ti.com/lit/ds/symlink/drv8833.pdf</datasheet>
+      <libsource lib="Driver_Motor" part="DRV8833PW" description="Dual H-Bridge Motor Driver, TSSOP-16"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="scheme.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>67448562-d431-442f-b397-57e247b7b92c</tstamps>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="Driver_Motor" part="DRV8833PW">
+      <description>Dual H-Bridge Motor Driver, TSSOP-16</description>
+      <docs>http://www.ti.com/lit/ds/symlink/drv8833.pdf</docs>
+      <footprints>
+        <fp>TSSOP-16*4.4x5mm*P0.65mm*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">DRV8833PW</field>
+        <field name="Footprint">Package_SO:TSSOP-16_4.4x5mm_P0.65mm</field>
+        <field name="Datasheet">http://www.ti.com/lit/ds/symlink/drv8833.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="nSLEEP" type="input"/>
+        <pin num="2" name="AOUT1" type="power_out"/>
+        <pin num="3" name="AISEN" type="bidirectional"/>
+        <pin num="4" name="AOUT2" type="power_out"/>
+        <pin num="5" name="BOUT2" type="power_out"/>
+        <pin num="6" name="BISEN" type="bidirectional"/>
+        <pin num="7" name="BOUT1" type="power_out"/>
+        <pin num="8" name="nFAULT" type="open_collector"/>
+        <pin num="9" name="BIN1" type="input"/>
+        <pin num="10" name="BIN2" type="input"/>
+        <pin num="11" name="VCP" type="bidirectional"/>
+        <pin num="12" name="VM" type="power_in"/>
+        <pin num="13" name="GND" type="power_in"/>
+        <pin num="14" name="VINT" type="power_in"/>
+        <pin num="15" name="AIN2" type="input"/>
+        <pin num="16" name="AIN1" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="ESP32-footprints-Shem-Lib" part="ESP3212">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">ESP3212</field>
+        <field name="Footprint">ESP32-footprints-Lib:ESP3212</field>
+      </fields>
+      <pins>
+        <pin num="1" name="GND" type="input"/>
+        <pin num="2" name="EN" type="input"/>
+        <pin num="3" name="SENSOR_VP" type="input"/>
+        <pin num="4" name="SENSOR_VN" type="input"/>
+        <pin num="5" name="IO34" type="input"/>
+        <pin num="6" name="IO35" type="input"/>
+        <pin num="7" name="IO32" type="input"/>
+        <pin num="8" name="IO33" type="input"/>
+        <pin num="9" name="IO25" type="input"/>
+        <pin num="10" name="IO26" type="input"/>
+        <pin num="11" name="IO27" type="input"/>
+        <pin num="12" name="IO14" type="input"/>
+        <pin num="13" name="IO12" type="input"/>
+        <pin num="14" name="IO13" type="input"/>
+        <pin num="15" name="IO15" type="input"/>
+        <pin num="16" name="GND" type="input"/>
+        <pin num="17" name="IO2" type="input"/>
+        <pin num="18" name="IO0" type="input"/>
+        <pin num="19" name="IO4" type="input"/>
+        <pin num="20" name="IO16" type="input"/>
+        <pin num="21" name="3V3" type="input"/>
+        <pin num="22" name="IO17" type="input"/>
+        <pin num="23" name="IO5" type="input"/>
+        <pin num="24" name="IO18" type="input"/>
+        <pin num="25" name="IO23" type="input"/>
+        <pin num="26" name="IO19" type="input"/>
+        <pin num="27" name="IO22" type="input"/>
+        <pin num="28" name="U0RXD" type="input"/>
+        <pin num="29" name="U0TXD" type="input"/>
+        <pin num="30" name="IO21" type="input"/>
+        <pin num="31" name="GND" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="Motor" part="Motor_DC">
+      <description>DC Motor</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>PinHeader*P2.54mm*</fp>
+        <fp>TerminalBlock*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">M</field>
+        <field name="Value">Motor_DC</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="+" type="passive"/>
+        <pin num="2" name="-" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Regulator_Switching" part="LM2596S-3.3">
+      <description>3.3V 3A Step-Down Voltage Regulator, TO-263</description>
+      <docs>http://www.ti.com/lit/ds/symlink/lm2596.pdf</docs>
+      <footprints>
+        <fp>TO?263*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">LM2596S-3.3</field>
+        <field name="Footprint">Package_TO_SOT_SMD:TO-263-5_TabPin3</field>
+        <field name="Datasheet">http://www.ti.com/lit/ds/symlink/lm2596.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="VIN" type="power_in"/>
+        <pin num="2" name="OUT" type="output"/>
+        <pin num="3" name="GND" type="power_in"/>
+        <pin num="4" name="FB" type="input"/>
+        <pin num="5" name="~{ON}/OFF" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="Regulator_Switching" part="LM2596S-5">
+      <description>5V 3A Step-Down Voltage Regulator, TO-263</description>
+      <docs>http://www.ti.com/lit/ds/symlink/lm2596.pdf</docs>
+      <footprints>
+        <fp>TO?263*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">LM2596S-5</field>
+        <field name="Footprint">Package_TO_SOT_SMD:TO-263-5_TabPin3</field>
+        <field name="Datasheet">http://www.ti.com/lit/ds/symlink/lm2596.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="VIN" type="power_in"/>
+        <pin num="2" name="OUT" type="output"/>
+        <pin num="3" name="GND" type="power_in"/>
+        <pin num="4" name="FB" type="input"/>
+        <pin num="5" name="~{ON}/OFF" type="input"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="Driver_Motor">
+      <uri>/app/extensions/Library/symbols//Driver_Motor.kicad_sym</uri>
+    </library>
+    <library logical="ESP32-footprints-Shem-Lib">
+      <uri>/home/artem/Загрузки/ESP32-Footprints/ESP32-footprints-Shem-Lib.lib</uri>
+    </library>
+    <library logical="Motor">
+      <uri>/app/extensions/Library/symbols//Motor.kicad_sym</uri>
+    </library>
+    <library logical="Regulator_Switching">
+      <uri>/app/extensions/Library/symbols//Regulator_Switching.kicad_sym</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="+3.3V">
+      <node ref="U2" pin="2" pinfunction="OUT" pintype="output"/>
+      <node ref="U3" pin="2" pinfunction="EN" pintype="input"/>
+    </net>
+    <net code="2" name="+5V">
+      <node ref="U1" pin="2" pinfunction="OUT" pintype="output"/>
+      <node ref="U2" pin="1" pinfunction="VIN" pintype="power_in"/>
+    </net>
+    <net code="3" name="+7.5V">
+      <node ref="U1" pin="1" pinfunction="VIN" pintype="power_in"/>
+      <node ref="U4" pin="11" pinfunction="VCP" pintype="bidirectional"/>
+    </net>
+    <net code="4" name="GND">
+      <node ref="U1" pin="3" pinfunction="GND" pintype="power_in"/>
+      <node ref="U2" pin="3" pinfunction="GND" pintype="power_in"/>
+      <node ref="U3" pin="1" pinfunction="GND" pintype="input"/>
+      <node ref="U4" pin="13" pinfunction="GND" pintype="power_in"/>
+    </net>
+    <net code="5" name="Net-(M1-Pad1)">
+      <node ref="M1" pin="1" pinfunction="+" pintype="passive"/>
+      <node ref="U4" pin="4" pinfunction="AOUT2" pintype="power_out"/>
+    </net>
+    <net code="6" name="Net-(M1-Pad2)">
+      <node ref="M1" pin="2" pinfunction="-" pintype="passive"/>
+      <node ref="U4" pin="2" pinfunction="AOUT1" pintype="power_out"/>
+    </net>
+    <net code="7" name="Net-(M2-Pad1)">
+      <node ref="M2" pin="1" pinfunction="+" pintype="passive"/>
+      <node ref="U4" pin="7" pinfunction="BOUT1" pintype="power_out"/>
+    </net>
+    <net code="8" name="Net-(M2-Pad2)">
+      <node ref="M2" pin="2" pinfunction="-" pintype="passive"/>
+      <node ref="U4" pin="5" pinfunction="BOUT2" pintype="power_out"/>
+    </net>
+    <net code="9" name="Net-(U3-Pad5)">
+      <node ref="U3" pin="5" pinfunction="IO34" pintype="input"/>
+      <node ref="U4" pin="10" pinfunction="BIN2" pintype="input"/>
+    </net>
+    <net code="10" name="Net-(U3-Pad6)">
+      <node ref="U3" pin="6" pinfunction="IO35" pintype="input"/>
+      <node ref="U4" pin="9" pinfunction="BIN1" pintype="input"/>
+    </net>
+    <net code="11" name="Net-(U3-Pad7)">
+      <node ref="U3" pin="7" pinfunction="IO32" pintype="input"/>
+      <node ref="U4" pin="15" pinfunction="AIN2" pintype="input"/>
+    </net>
+    <net code="12" name="Net-(U3-Pad8)">
+      <node ref="U3" pin="8" pinfunction="IO33" pintype="input"/>
+      <node ref="U4" pin="16" pinfunction="AIN1" pintype="input"/>
+    </net>
+    <net code="13" name="unconnected-(U1-Pad4)">
+      <node ref="U1" pin="4" pinfunction="FB" pintype="input"/>
+    </net>
+    <net code="14" name="unconnected-(U1-Pad5)">
+      <node ref="U1" pin="5" pinfunction="~{ON}/OFF" pintype="input"/>
+    </net>
+    <net code="15" name="unconnected-(U2-Pad4)">
+      <node ref="U2" pin="4" pinfunction="FB" pintype="input"/>
+    </net>
+    <net code="16" name="unconnected-(U2-Pad5)">
+      <node ref="U2" pin="5" pinfunction="~{ON}/OFF" pintype="input"/>
+    </net>
+    <net code="17" name="unconnected-(U3-Pad3)">
+      <node ref="U3" pin="3" pinfunction="SENSOR_VP" pintype="input"/>
+    </net>
+    <net code="18" name="unconnected-(U3-Pad4)">
+      <node ref="U3" pin="4" pinfunction="SENSOR_VN" pintype="input"/>
+    </net>
+    <net code="19" name="unconnected-(U3-Pad9)">
+      <node ref="U3" pin="9" pinfunction="IO25" pintype="input"/>
+    </net>
+    <net code="20" name="unconnected-(U3-Pad10)">
+      <node ref="U3" pin="10" pinfunction="IO26" pintype="input"/>
+    </net>
+    <net code="21" name="unconnected-(U3-Pad11)">
+      <node ref="U3" pin="11" pinfunction="IO27" pintype="input"/>
+    </net>
+    <net code="22" name="unconnected-(U3-Pad12)">
+      <node ref="U3" pin="12" pinfunction="IO14" pintype="input"/>
+    </net>
+    <net code="23" name="unconnected-(U3-Pad13)">
+      <node ref="U3" pin="13" pinfunction="IO12" pintype="input"/>
+    </net>
+    <net code="24" name="unconnected-(U3-Pad14)">
+      <node ref="U3" pin="14" pinfunction="IO13" pintype="input"/>
+    </net>
+    <net code="25" name="unconnected-(U3-Pad15)">
+      <node ref="U3" pin="15" pinfunction="IO15" pintype="input"/>
+    </net>
+    <net code="26" name="unconnected-(U3-Pad16)">
+      <node ref="U3" pin="16" pinfunction="GND" pintype="input"/>
+    </net>
+    <net code="27" name="unconnected-(U3-Pad17)">
+      <node ref="U3" pin="17" pinfunction="IO2" pintype="input"/>
+    </net>
+    <net code="28" name="unconnected-(U3-Pad18)">
+      <node ref="U3" pin="18" pinfunction="IO0" pintype="input"/>
+    </net>
+    <net code="29" name="unconnected-(U3-Pad19)">
+      <node ref="U3" pin="19" pinfunction="IO4" pintype="input"/>
+    </net>
+    <net code="30" name="unconnected-(U3-Pad20)">
+      <node ref="U3" pin="20" pinfunction="IO16" pintype="input"/>
+    </net>
+    <net code="31" name="unconnected-(U3-Pad21)">
+      <node ref="U3" pin="21" pinfunction="3V3" pintype="input"/>
+    </net>
+    <net code="32" name="unconnected-(U3-Pad22)">
+      <node ref="U3" pin="22" pinfunction="IO17" pintype="input"/>
+    </net>
+    <net code="33" name="unconnected-(U3-Pad23)">
+      <node ref="U3" pin="23" pinfunction="IO5" pintype="input"/>
+    </net>
+    <net code="34" name="unconnected-(U3-Pad24)">
+      <node ref="U3" pin="24" pinfunction="IO18" pintype="input"/>
+    </net>
+    <net code="35" name="unconnected-(U3-Pad25)">
+      <node ref="U3" pin="25" pinfunction="IO23" pintype="input"/>
+    </net>
+    <net code="36" name="unconnected-(U3-Pad26)">
+      <node ref="U3" pin="26" pinfunction="IO19" pintype="input"/>
+    </net>
+    <net code="37" name="unconnected-(U3-Pad27)">
+      <node ref="U3" pin="27" pinfunction="IO22" pintype="input"/>
+    </net>
+    <net code="38" name="unconnected-(U3-Pad28)">
+      <node ref="U3" pin="28" pinfunction="U0RXD" pintype="input"/>
+    </net>
+    <net code="39" name="unconnected-(U3-Pad29)">
+      <node ref="U3" pin="29" pinfunction="U0TXD" pintype="input"/>
+    </net>
+    <net code="40" name="unconnected-(U3-Pad30)">
+      <node ref="U3" pin="30" pinfunction="IO21" pintype="input"/>
+    </net>
+    <net code="41" name="unconnected-(U3-Pad31)">
+      <node ref="U3" pin="31" pinfunction="GND" pintype="input"/>
+    </net>
+    <net code="42" name="unconnected-(U4-Pad1)">
+      <node ref="U4" pin="1" pinfunction="nSLEEP" pintype="input"/>
+    </net>
+    <net code="43" name="unconnected-(U4-Pad3)">
+      <node ref="U4" pin="3" pinfunction="AISEN" pintype="bidirectional"/>
+    </net>
+    <net code="44" name="unconnected-(U4-Pad6)">
+      <node ref="U4" pin="6" pinfunction="BISEN" pintype="bidirectional"/>
+    </net>
+    <net code="45" name="unconnected-(U4-Pad8)">
+      <node ref="U4" pin="8" pinfunction="nFAULT" pintype="open_collector"/>
+    </net>
+    <net code="46" name="unconnected-(U4-Pad12)">
+      <node ref="U4" pin="12" pinfunction="VM" pintype="power_in"/>
+    </net>
+    <net code="47" name="unconnected-(U4-Pad14)">
+      <node ref="U4" pin="14" pinfunction="VINT" pintype="power_in"/>
+    </net>
+  </nets>
+</export>

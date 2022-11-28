@@ -1,0 +1,27 @@
+"Source:","/home/artem/projects/cpm_shoot/scheme/scheme/scheme/scheme.kicad_sch"
+"Date:","Пн 28 ноя 2022 11:09:49"
+"Tool:","Eeschema 6.0.9"
+"Generator:","/app/share/kicad/plugins/bom_csv_grouped_by_value.py"
+"Component Count:","6"
+
+"Individual Components:"
+
+"Item","Qty","Reference(s)","Value","LibPart","Footprint","Datasheet"
+"","","M1","Motor_A","Motor:Motor_DC","","~"
+"","","M2","Motor_B","Motor:Motor_DC","","~"
+"","","U1","LM2596S-5","Regulator_Switching:LM2596S-5","Package_TO_SOT_SMD:TO-263-5_TabPin3","http://www.ti.com/lit/ds/symlink/lm2596.pdf"
+"","","U2","LM2596S-3.3","Regulator_Switching:LM2596S-3.3","Package_TO_SOT_SMD:TO-263-5_TabPin3","http://www.ti.com/lit/ds/symlink/lm2596.pdf"
+"","","U3","ESP3212","ESP32-footprints-Shem-Lib:ESP3212","ESP32-footprints-Lib:ESP3212",""
+"","","U4","DRV8833","Driver_Motor:DRV8833PW","Package_SO:TSSOP-16_4.4x5mm_P0.65mm","http://www.ti.com/lit/ds/symlink/drv8833.pdf"
+
+
+
+"Collated Components:"
+
+"Item","Qty","Reference(s)","Value","LibPart","Footprint","Datasheet"
+"1","1","M1","Motor_A","Motor:Motor_DC","","~"
+"2","1","M2","Motor_B","Motor:Motor_DC","","~"
+"3","1","U1","LM2596S-5","Regulator_Switching:LM2596S-5","Package_TO_SOT_SMD:TO-263-5_TabPin3","http://www.ti.com/lit/ds/symlink/lm2596.pdf"
+"4","1","U2","LM2596S-3.3","Regulator_Switching:LM2596S-3.3","Package_TO_SOT_SMD:TO-263-5_TabPin3","http://www.ti.com/lit/ds/symlink/lm2596.pdf"
+"5","1","U3","ESP3212","ESP32-footprints-Shem-Lib:ESP3212","ESP32-footprints-Lib:ESP3212",""
+"6","1","U4","DRV8833","Driver_Motor:DRV8833PW","Package_SO:TSSOP-16_4.4x5mm_P0.65mm","http://www.ti.com/lit/ds/symlink/drv8833.pdf"
