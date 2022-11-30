@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "cpm_shoot"
+version = "0.1.0"
+description = "ДРепка для выполнения олимпидады ЦПМ-2022"
+authors = ["coshe1mil <a.varvus@ya.ru>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+opencv-python = "^4.6.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
