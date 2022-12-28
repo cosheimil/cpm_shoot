@@ -1,8 +1,4 @@
 settings_hsv
-<<<<<<< HEAD
 venv/*
 img/*
-=======
-img/*
-venv/*
->>>>>>> d1d6ae3 (gitignore)
+.trunk/*
