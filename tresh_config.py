@@ -6,7 +6,7 @@ FILE_NAME = 'settings_hsv'
 cv2.namedWindow("result")  # создаем главное окно
 cv2.namedWindow("settings")  # создаем окно настроек
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(-1)
 
 # создаем 6 бегунков для настройки начального и конечного цвета фильтра
 cv2.createTrackbar('h1', 'settings', 0, 255, lambda x: x)
