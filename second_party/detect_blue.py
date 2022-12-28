@@ -12,7 +12,7 @@ while True:
 
     thresh = cv.inRange(fraps, hsv_low, hsv_high)
 
-    cv.imshow('prep', thresh)
+    cv.imshow("prep", thresh)
     cv.waitKey(0)
 
 cap.release()
