@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "cpm_shoot"
 version = "0.1.0"
-description = "ДРепка для выполнения олимпидады ЦПМ-2022"
+description = "Репка для выполнения олимпидады ЦПМ-2022"
 authors = ["coshe1mil <a.varvus@ya.ru>"]
 
 [tool.poetry.dependencies]
