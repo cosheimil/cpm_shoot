@@ -408,9 +408,9 @@ def do_leds():
         p[2],p[0],m,v))
     print("+------+-------+------+-----+")
 
-def check_gpio_valid():
-  if args.gpio == None or args.gpio<0 or args.gpio>127:
-    print("the {} command requires a gpio pin number".format(args.cmd))
+def check_gpio_valid(gpio):
+  if gpio == None or gpio<0 or gpio>127:
+    # print("the {} command requires a gpio pin number".format(args.cmd))
     sys.exit(1)
     
 def do_read():
@@ -423,11 +423,9 @@ def do_read():
 # gpio is a pin number, extra is value
 def do_write(gpio, extra):
   # logging.debug("do_write: %d %s",args.gpio, args.extra)
+
   check_gpio_valid()
-  global args
-  args.gpio = gpio
-  args.extra = extra
-  g = GPIO_factory(gpio, args.direct)
+  g = GPIO_factory(gpio, False)
   if args.extra in ('1', 'on', 'ON'):
     v = 1
   elif args.extra in ('0', 'off', 'OFF'):
