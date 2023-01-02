@@ -420,17 +420,20 @@ def do_read():
   g = GPIO_factory(gpio,args.direct)
   return g.get()
 
-def do_write():
-  logging.debug("do_write: %d %s",args.gpio, args.extra)
+# gpio is a pin number, extra is value
+def do_write(gpio, extra):
+  # logging.debug("do_write: %d %s",args.gpio, args.extra)
   check_gpio_valid()
-  gpio = args.gpio
+  global args
+  args.gpio = gpio
+  args.extra = extra
   g = GPIO_factory(gpio, args.direct)
   if args.extra in ('1', 'on', 'ON'):
     v = 1
   elif args.extra in ('0', 'off', 'OFF'):
     v = 0
   else:
-    print("the 'write' command requires a 2nd argument, either 0 or 1")
+    # print("the 'write' command requires a 2nd argument, either 0 or 1")
     sys.exit(1)
   g.set(v)
 
