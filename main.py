@@ -1,146 +1,137 @@
-"""Стреляем!"""
-from __future__ import annotations
+import sensor, image, time, pyb, math
+sensor.reset()
+sensor.set_pixformat(sensor.RGB565)
+sensor.set_framesize(sensor.XGA)  # 80 * 60 / 160 * 120
+sensor.skip_frames(time=2000)
+sensor.set_auto_gain(False, 3.52183)
+sensor.set_auto_whitebal(False, rgb_gain_db=(61.4454, 60.2071, 64.5892))
+#sensor.set_auto_exposure(False, 10124)
+sensor.set_vflip(True)
+sensor.set_hmirror(True)
+clock = time.clock()
 
-from abc import ABC, abstractmethod
+dist_in = pyb.Pin('P5', pyb.Pin.IN)
+dist_out = pyb.Pin('P6', pyb.Pin.OUT_PP)
+in_1 = pyb.Pin('P2', pyb.Pin.OUT_PP)
+in_2 = pyb.Pin('P3', pyb.Pin.OUT_PP)
+in_3 = pyb.Pin('P4', pyb.Pin.OUT_PP)
+in_4 = pyb.Pin('P8', pyb.Pin.OUT_PP)
+laser = pyb.Pin('P6', pyb.Pin.OUT_PP)
 
-import cv2 as cv
-import numpy as np
+#stepper_motor = (in_1, in_2, in_3, in_4)
 
-import config
+states = [(1, 0, 0, 1), (1, 1, 0, 0), (0, 1, 1, 0), (0, 0, 1, 1)]
 
+servo = pyb.Servo(1)
+#print('suc')
+#laser = dist_out
 
-class Robot:
+trsh_blue = [(27, 61, -3, 18, -28, -11)]
+trsh_oran = [(49, 59, 4, 23, 7, 21)]
+rois = (237, 154, 461, 371)
+n = 10
+#sterr = 4 * math.asin(math.sin(math.radians(99) / 2) * math.sin(math.radians(89) / 2))
+sterr = 3
+H = 6.35
+h = 1.5
+
+def find_circ():
+    img = sensor.snapshot()
+    img.lens_corr(strength=1.8)
+    return img.find_blobs(trsh_blue, invert=False, roi=rois, merge=True, threshold_cb=lambda x: x.roundness() >= .3)
+    #return img.find_circles()
+
+def find_ticks():
+    img = sensor.snapshot()
+    img.lens_corr(strength=1.8)
+    return img.find_blobs(trsh_oran, invert=False, roi=rois, merge=True)
+
+def draw_blobs():
+    img = sensor.snapshot()
+    img.lens_corr(strength=1.8)
+    blobs_bl = img.find_blobs(trsh_blue, invert=False, roi=rois, merge=True, threshold_cb=lambda x: x.roundness() >= .7)
+    blobs_or = img.find_blobs(trsh_oran, invert=False, roi=rois, merge=True)
+    for blob in blobs_bl:
+        img.draw_rectangle(blob.rect(), color=(0, 255, 0))
+        img.draw_cross(blob.cx(), blob.cy(), color=(0,255,0))
+        pyb.delay(10)
+
+    for blob in blobs_or:
+        img.draw_rectangle(blob.rect(), color=(255, 0, 0))
+        img.draw_cross(blob.cx(), blob.cy(), color=(255, 0, 0))
+        pyb.delay(10)
+
+def dist():
     """
-    Контекст определяет интерфейс, представляющий интерес для клиентов. Он также
-    хранит ссылку на экземпляр подкласса Состояния, который отображает текущее
-    состояние Контекста.
+    Calculate dist to wall
     """
+    dist_out.low()
+    dist_in.low()
+    pyb.delay(2)
+    dist_out.high()
+    start = pyb.micros()
+    while pyb.micros() - start <= 10:
+        ...
+    dist_out.low()
+    while dist_in.value() != 1:
+        ...
+    timed = pyb.micros()
+    while dist_in.value() != 0:
+        ...
+    end = pyb.micros()
+    cm = (end - timed) / 58.2
+    return cm
 
-    _state = None  # контекст
-
-    def __init__(self, state: State) -> None:
-        self.transition_to(state)
-
-    def transition_to(self, state: State):
-        """
-        Контекст позволяет изменять объект Состояния во время выполнения.
-        """
-        self._state = state
-        self._state.context = self
-        if config.DEBUG:
-            print(f"Context: Transition to {type(state).__name__}")
-
-    def setup(self):
-        """Все включаем, проверяем оборудование"""
-        self._state.setup()
-
-    def move(self):
-        """Двигаем башенкой"""
-        self._state.move()
-
-    def laser_on(self):
-        """Включаем лазер"""
-        self._state.laser_on()
-
-    def laser_off(self):
-        """Выключаем лазер"""
-        self._state.laser_off()
-
-    def led_on(self):
-        """Включаем лампочку"""
-        self._state.led_on()
-
-    def led_off(self):
-        """Выключаем лампочку"""
-        self._state.led_off()
-
-    def buzz(self):
-        """Навалить бассов"""
-        self._state.buzz()
-
-    def debug(self):
-        """Отладочка"""
-        self._state.debug()
-
-    def button(self):
-        """Получаем состояние кнопки"""
-        self._state.button()
+def write_steps(n: int, direct: int):
+    shift = 0
+    for j in range(n):
+        for i, pin in enumerate(stepper_motor):
+            pin.value(states[shift % 4][i])
+        shift += direct
+        pyb.delay(15)
 
 
-class State(ABC):
+def move_to_point(x, y, d):
     """
-    Базовый класс Состояния объявляет методы, которые должны реализовать все
-    Конкретные Состояния, а также предоставляет обратную ссылку на объект
-    Контекст, связанный с Состоянием. Эта обратная ссылка может использоваться
-    Состояниями для передачи Контекста другому Состоянию.
+    Move to point by cx, cy, distance to wall
     """
-
-    @property
-    def context(self) -> Robot:
-        return self._context
-
-    @context.setter
-    def context(self, context: Robot) -> None:
-        self._context = context
-
-    @abstractmethod
-    def setup(self):
-        pass
-
-    @abstractmethod
-    def move(self):
-        pass
-
-    @abstractmethod
-    def laser_on(self):
-        pass
-
-    @abstractmethod
-    def laser_off(self):
-        pass
-
-    @abstractmethod
-    def led_on(self):
-        pass
-
-    @abstractmethod
-    def led_off(self):
-        pass
-
-    @abstractmethod
-    def buzz(self):
-        pass
-
-    @abstractmethod
-    def debug(self):
-        pass
-
-    @abstractmethod
-    def button(self):
-        pass
-
-
-"""
-Конкретные Состояния реализуют различные модели поведения, связанные с
-состоянием Контекста.
-"""
-
-
-class Calibrate(State):
-    """Все настраиваем перед заездом, ждем кнопочку"""
-
-
-class BuildRoad(State):
-    """Составляем маршрут"""
-
-
-class Shoot(State):
-    """Поражаем цель"""
-
+    # Move by y
+    px_to_cm = math.sqrt((sterr*distance**2)/(1024*768))
+    tg_b = math.tan(math.radians(31))
+    #print(px_to_cm)
+    tg_O = -1 * (H - y * px_to_cm + d * tg_b - h) / d
+    #print(tg_O)
+    ang_O = math.degrees((math.atan(tg_O)))
+    #print(ang_O)
+    servo.angle(ang_O)
 
 def main():
-    ...
+    # Init
+    pyb.delay(50)
+    distance = 143 # cm
+    # Get tick info: cx, cy, area in pixels
+    t_tick_x, t_tick_y, t_tick_area = 0, 0, 0
+    for _ in range(n):
+        t = find_ticks()
+        t_tick_x += t[0].cx()
+        t_tick_y += t[0].cy()
+        t_tick_area += t[0].pixels()
+        pyb.delay(5)
+    tick_x, tick_y, tick_area = t_tick_x // n, t_tick_y // n, t_tick_area // n
+
+    # Get blue-circles info
+    t_circ_x, t_circ_y = [[] for _ in range(5)], [[] for _ in range(5)]
+    for _ in range(n):
+        t = find_circ()
+        for ind, element in enumerate(t):
+            t_circ_x[ind].append(element.cx())
+            t_circ_y[ind].append(element.cy())
+    blue_circ_x = list(sum(i) // 5 for i in t_circ_x)
+    blue_circ_y = list(sum(i) // 5 for i in t_circ_y)
+    blue_circ_c = list((blue_circ_x[i], blue_circ_y[i]) for i in range(5))
 
 
-if __name__ == "__main__":
+
+
+if __name__ == '__main__':
     main()
