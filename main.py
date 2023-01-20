@@ -1,17 +1,15 @@
 import sensor, image, time, pyb, math
+
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
-sensor.set_framesize(sensor.XGA)  # 80 * 60 / 160 * 120
+sensor.set_framesize(sensor.XGA)
 sensor.skip_frames(time=2000)
 sensor.set_auto_gain(False, 3.52183)
 sensor.set_auto_whitebal(False, rgb_gain_db=(61.4454, 60.2071, 64.5892))
-#sensor.set_auto_exposure(False, 10124)
 sensor.set_vflip(True)
 sensor.set_hmirror(True)
 clock = time.clock()
 
-#dist_in = pyb.Pin('P5', pyb.Pin.IN)
-#dist_out = pyb.Pin('P6', pyb.Pin.OUT_PP)
 in_1 = pyb.Pin('P2', pyb.Pin.OUT_PP)
 in_2 = pyb.Pin('P3', pyb.Pin.OUT_PP)
 in_3 = pyb.Pin('P4', pyb.Pin.OUT_PP)
@@ -23,8 +21,6 @@ stepper_motor = (in_1, in_2, in_3, in_4)
 states = [(1, 0, 0, 1), (1, 1, 0, 0), (0, 1, 1, 0), (0, 0, 1, 1)]
 
 servo = pyb.Servo(1)
-#print('suc')
-#laser = dist_out
 
 trsh_blue = [(27, 61, -3, 18, -28, -11)]
 trsh_oran = [(49, 59, 4, 23, 7, 21)]
@@ -34,19 +30,29 @@ n = 10
 sterr = 4.07 / 0.87
 H = 6.35
 h = 1.5
+x_old = 1024 // 2
 
 def find_circ():
+    """
+    Func to find blue circles in rois with roundness more than .6 and merge all
+    """
     img = sensor.snapshot()
     img.lens_corr(strength=1.8)
     return img.find_blobs(trsh_blue, invert=False, roi=rois, merge=True, threshold_cb=lambda x: x.roundness() >= .6)
     #return img.find_circles()
 
 def find_ticks():
+    """
+    Func to find red ticks in rois
+    """
     img = sensor.snapshot()
     img.lens_corr(strength=1.8)
     return img.find_blobs(trsh_oran, invert=False, roi=rois, merge=True)
 
 def draw_blobs():
+    """
+    Debug func to draw blobs including circles and tick(s)
+    """
     img = sensor.snapshot()
     img.lens_corr(strength=1.8)
     blobs_bl = img.find_blobs(trsh_blue, invert=False, roi=rois, merge=True, threshold_cb=lambda x: x.roundness() >= .7)
@@ -61,10 +67,10 @@ def draw_blobs():
         img.draw_cross(blob.cx(), blob.cy(), color=(255, 0, 0))
         pyb.delay(10)
 
-def dist():
-    ...
-
 def write_steps(n: int, direct: int):
+    """
+    Write steps to motor and apply direction
+    """
     shift = 0
     for j in range(n):
         for i, pin in enumerate(stepper_motor):
@@ -73,31 +79,33 @@ def write_steps(n: int, direct: int):
         pyb.delay(15)
 
 def px_to_cm(px, d):
+    """
+    Func to convert px to cm using sterr
+    """
     return math.sqrt(sterr * d  ** 2 / (1024 * 768)) * px
 
 def cm_to_px(cm, d):
+    """
+    Func to convert cm to px using sterr
+    """
     return cm // (math.sqrt(sterr * d ** 2 / (1024 * 768)))
-x_old = 1024 // 2
+
+
 def move_to_point(x, y, d):
-    global x_old
     """
     Move to point by cx, cy, distance to wall
     """
+    global x_old
     # Move by y
     px_to_cm = math.sqrt((sterr*d**2)/(1024*768))
     tg_b = math.tan(math.radians(31))
-    #print(px_to_cm)
     tg_O =  -1 * (H - (768 - y) * px_to_cm + d * tg_b - h) / d
-    #print(tg_O)
     ang_O = math.degrees((math.atan(tg_O)))
-    #print(ang_O)
     servo.angle(ang_O)
 
     # Move by x
-    #print(cm_to_px(d, d))
     tetta = math.degrees(math.atan(abs(x - x_old) / cm_to_px(d, d)))
     tetta_steps = tetta // 0.18
-    #print(tetta_steps, 1 if x - 1024 // 2 >= 0 else -1)
     write_steps(tetta_steps, 1 if x - x_old >= 0 else -1)
     x_old = x
 
