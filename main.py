@@ -4,7 +4,7 @@ sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.XGA)
 sensor.skip_frames(time=2000)
-sensor.set_auto_gain(False, 3.52183)
+#sensor.set_auto_gain(False, 3.52183)
 sensor.set_auto_whitebal(False, rgb_gain_db=(61.4454, 60.2071, 64.5892))
 sensor.set_vflip(True)
 sensor.set_hmirror(True)
@@ -24,9 +24,9 @@ stepper_motor = (in_1, in_2, in_3, in_4)
 
 states = [(1, 0, 0, 1), (1, 1, 0, 0), (0, 1, 1, 0), (0, 0, 1, 1)]
 
-trsh_blue = [(20, 66, 9, 32, -52, -40)]
-trsh_oran = [(57, 95, 27, 49, -30, 6)]
-rois = (215, 356, 424, 246)
+trsh_blue = [(30, 67, 2, 20, -17, 13)]
+trsh_oran = [(39, 70, 23, 79, 5, 56)]
+rois = (166, 269, 646, 390)
 n = 10
 #sterr = 4 * math.asin(math.sin(math.radians(99) / 2) * math.sin(math.radians(89) / 2))
 sterr = 4.07 * 0.8
@@ -150,7 +150,7 @@ def main():
     #distance = 132 * 862 / tick_area
 
     # Get blue-circles info
-    t_circ_x, t_circ_y = [[] for _ in range(5)], [[] for _ in range(5)]
+    t_circ_x, t_circ_y = [[] for _ in range(n)], [[] for _ in range(n)]
     for _ in range(n):
         t = find_circ()
         print(t)
@@ -194,7 +194,7 @@ def main():
 
 
 def exp():
-    servo2.angle(-30)
+    servo2.angle(0)
     laser.high()
     while True:
         img = sensor.snapshot()
