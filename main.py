@@ -32,9 +32,16 @@ n = 10
 sterr = 4.07 * 0.8
 H = 6.35
 h = 1.5
-x_old = 1024 // 2
-
+d = 0.7
+x_0 = 768 // 2
+y_0 = 1024 // 2
+fov = 55.6 # 81.9
+foh = 70.8 #99
+cappa_0 = 499
 def sort_circles(circ, tick):
+    """
+    Sort circles in true sign after sorting by distance
+    """
     x_center, y_center = tick[0], tick[1]
     swapped = True
     while swapped:
@@ -85,17 +92,6 @@ def draw_blobs():
         img.draw_cross(blob.cx(), blob.cy(), color=(255, 0, 0))
         pyb.delay(10)
 
-def write_steps(n: int, direct: int):
-    """
-    Write steps to motor and apply direction
-    """
-    shift = 0
-    for j in range(n):
-        for i, pin in enumerate(stepper_motor):
-            pin.value(states[shift % 4][i])
-        shift += direct
-        pyb.delay(30)
-
 def px_to_cm(px, d):
     """
     Func to convert px to cm using sterr
@@ -108,34 +104,72 @@ def cm_to_px(cm, d):
     """
     return cm // (math.sqrt(sterr * d ** 2 / (1024 * 768)))
 
+def point_in_cam(angle_cam, gamma):
+    """
+    Возвращаем координаты какой-либо точки в системе отсчета камеры
+    """
+    x = (1 - gamma) * math.cos(math.radians(angle_cam)) + gamma
+    y = (1 - gamma) * math.sin(math.radians(angle_cam))
+    return (x, y)
 
-def move_to_point(x, y, y_0, d):
+def angle_in_cam_radians(angle_cam, gamma):
+    x, y = point_in_cam(angle_cam, gamma)
+    return math.atan(y / x)
+
+def point_cam_to_laser_co(x, y):
+    """
+    Делаем поворот системы координат камеры в систему координат сервы
+    """
+    ang = math.radians(fov / 2 - 20)
+    print(f'ang: {fov / 2 - 20}')
+    _x = x * math.cos(ang) + y * math.sin(ang)
+    _y = - x * math.sin(ang) + y * math.cos(ang)
+    #print(ang)
+    # 70deg - угол наклона камеры относительно плоскости основания
+    _x = _x - d
+    #_y = _y + (H - h)
+
+    return (_x, _y)
+
+def know_r(angle_cam, gamma, l):
+    cappa = angle_in_cam_radians(angle_cam, cappa_0 / 768)
+    betta = angle_in_cam_radians(angle_cam, gamma)
+    return (l * math.sin(betta) / ((1 - gamma) * math.sin(math.radians(fov)) * math.cos(betta - cappa)))
+
+def move_to_point(x, y, d):
     """
     Move to point by cx, cy, distance to wall
     """
-    global x_old
     # Move by y
-    #px_to_cm = math.sqrt((sterr*d**2)/(1024*768))
-    #tg_b = math.tan(math.radians(31))
-    #tg_O =  -1 * (H - (768 - y) * px_to_cm + d * tg_b - h) / d
-    print(y)
-    print(px_to_cm(y_0 - y, d))
-    ang = math.degrees(math.asin(px_to_cm(y_0 - y, d) * math.sin(math.radians(70)) / (d + 1.2)))
-    servo.angle(ang)
-    print(ang)
+    r = know_r(fov, y / 768, d)
+    x_y, y_y = point_in_cam(fov, y / 768)
+    x_y, y_y = x_y * r, y_y * r
+    print(f'x: {x_y}, y: {y_y}')
+    x_y, y_y = point_cam_to_laser_co(x_y, y_y)
+    print(f'x: {x_y}, y: {y_y}')
+    ang_y = math.degrees(math.atan(y_y / x_y))
+    print(ang_y)
+    servo.angle(ang_y)
 
     # Move by x
-    print(px_to_cm(x - x_old, d))
-    tetta = math.degrees(math.atan(abs(x - x_old) / cm_to_px(d, d)))
-    servo2.angle(-1 * tetta if x >= x_old else tetta)
-    x_old = x
+    r = know_r(foh, x / 1024, d)
+    x_x, y_x = point_in_cam(foh, x / 1024)
+    x_x, y_x = x_x * r, y_x * r
+    #x_x, y_x = point_cam_to_laser_co(x_x, y_x)
+    ang_x = math.degrees(math.atan(y_x / x_x))
+    print(ang_x)
+    #servo2.angle(ang_x)
 
+
+def dist():
+    ...
 
 def main():
     # Init
     pyb.delay(50)
-    #laser.high()
-    servo.angle(0)
+
+    # Bla-bla
+
 
     # Get tick info: cx, cy, area in pixels AND distance to wall
     t_tick_x, t_tick_y, t_tick_area = 0, 0, 0
@@ -147,7 +181,6 @@ def main():
         pyb.delay(5)
     tick_x, tick_y, tick_area = t_tick_x // n, t_tick_y // n, t_tick_area // n
     tick = (tick_x, tick_y)
-    #distance = 132 * 862 / tick_area
 
     # Get blue-circles info
     t_circ_x, t_circ_y = [[] for _ in range(n)], [[] for _ in range(n)]
@@ -163,44 +196,36 @@ def main():
     button_value = button.value()
 
     # Now sort circles in true plan
-    #print(blue_circs)
     blue_circs = sorted(blue_circs, key=lambda x: math.sqrt((x[0] - tick[0]) ** 2 + (x[1] - tick[1]) ** 2))
     sort_circles(blue_circs, tick)
 
     px_area = 88 / tick_area
-
-    full_area = 1024*768*px_area
-
+    full_area = 1024*768 * px_area
     distance = math.sqrt(full_area / sterr)
 
-    y_0 = 559
-    print(distance, full_area)
-    #print(blue_circs)
-    print("ready")
-    #y_old = y_0
-    #Solve the problem
+    # Solve the problem
     laser.high()
     for circl in blue_circs:
         print(circl)
         blue_led.off()
         while button.value() == 0:
             pyb.delay(200)
-        move_to_point(circl[0], circl[1], y_0,distance)
+        move_to_point(circl[0], circl[1],distance)
         pyb.delay(200)
         blue_led.on()
         y_old = circl[1]
     blue_led.off()
-    #write_steps(abs(x_old), -1 if x_old > 0 else 1)
 
 
 def exp():
-    servo2.angle(0)
     laser.high()
+    #servo.angle(0)
+    #servo2.angle(0)
     while True:
         img = sensor.snapshot()
-        img.lens_corr(strength=1.8)
-        pyb.delay(100)
+        pyb.delay(200)
+    move_to_point(486, 275, 206)
 
 if __name__ == '__main__':
-    #exp()
-    main()
+    exp()
+    #main()
