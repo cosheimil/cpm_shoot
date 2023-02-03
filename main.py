@@ -10,34 +10,63 @@ sensor.set_vflip(True)
 sensor.set_hmirror(True)
 clock = time.clock()
 
-in_1 = pyb.Pin('P6', pyb.Pin.OUT_PP)
-in_2 = pyb.Pin('P5', pyb.Pin.OUT_PP)
-in_3 = pyb.Pin('P4', pyb.Pin.OUT_PP)
-in_4 = pyb.Pin('P3', pyb.Pin.OUT_PP)
+dist_out = pyb.Pin('P4', pyb.Pin.OUT_PP)
+dist_in = pyb.Pin('P3', pyb.Pin.IN, pyb.Pin.PULL_UP)
 laser = pyb.Pin('P2', pyb.Pin.OUT_PP)
 servo = pyb.Servo(1)
 servo2 = pyb.Servo(2)
 button = pyb.Pin('P9', pyb.Pin.IN)
 blue_led = pyb.LED(3)
 
-stepper_motor = (in_1, in_2, in_3, in_4)
-
-states = [(1, 0, 0, 1), (1, 1, 0, 0), (0, 1, 1, 0), (0, 0, 1, 1)]
-
 trsh_blue = [(30, 67, 2, 20, -17, 13)]
 trsh_oran = [(39, 70, 23, 79, 5, 56)]
 rois = (166, 269, 646, 390)
+
+cam_angle_y = 85
+cam_angle_z = 0.0
 n = 10
-#sterr = 4 * math.asin(math.sin(math.radians(99) / 2) * math.sin(math.radians(89) / 2))
-sterr = 4.07 * 0.8
-H = 6.35
-h = 1.5
-d = 0.7
-x_0 = 768 // 2
-y_0 = 1024 // 2
-fov = 55.6 # 81.9
-foh = 70.8 #99
-cappa_0 = 499
+X = 1024
+Y = 768
+VFOV = 81.9
+HFOV = 99
+
+class vector_3d:
+    x = 0
+    y = 0
+    z = 0
+
+    def __init__(self, coords: tuple[float]):
+        (self.x, self.y, self.z) = coords
+
+    def __add__(self, a):
+        return vector_3d((self.x + a.x, self.y + a.y, self.z + a.z))
+
+    def __sub__(self, a):
+        return vector_3d((self.x - a.x, self.y - a.y, self.z - a.z))
+
+    def rotate(self, axis, angle):
+        angle = math.radians(angle)
+        _cos = math.cos(angle)
+        _sin = math.sin(angle)
+        if axis == 0:
+            self.x = self.x
+            self.y = self.y * _cos - self.z * _sin
+            self.z = self.y * _sin + self.z * _cos
+        elif axis == 1:
+            self.x = self.x * _cos + self.z * _sin
+            self.y = self.y
+            self.z = -self.x * _sin + self.z * _cos
+        elif axis == 2:
+            self.x = self.x * _cos - self.y * _sin
+            self.y = self.x * _sin + self.y * _sin
+            self.z = self.z
+        else:
+            print(f"Wrong axis:{axis}!")
+
+    def get_coords(self):
+        return (self.x, self.y, self.z)
+
+
 def sort_circles(circ, tick):
     """
     Sort circles in true sign after sorting by distance
@@ -55,7 +84,6 @@ def sort_circles(circ, tick):
             if abs(dist1 - dist2) <= 10:
                 if x_c1 > x_c2:
                     circ[i], circ[i + 1] = circ[i + 1], circ[i]
-
 
 def find_circ():
     """
@@ -92,84 +120,99 @@ def draw_blobs():
         img.draw_cross(blob.cx(), blob.cy(), color=(255, 0, 0))
         pyb.delay(10)
 
-def px_to_cm(px, d):
-    """
-    Func to convert px to cm using sterr
-    """
-    return math.sqrt(sterr * d  ** 2 / (1024 * 768)) * px
-
-def cm_to_px(cm, d):
-    """
-    Func to convert cm to px using sterr
-    """
-    return cm // (math.sqrt(sterr * d ** 2 / (1024 * 768)))
-
-def point_in_cam(angle_cam, gamma):
-    """
-    Возвращаем координаты какой-либо точки в системе отсчета камеры
-    """
-    x = (1 - gamma) * math.cos(math.radians(angle_cam)) + gamma
-    y = (1 - gamma) * math.sin(math.radians(angle_cam))
-    return (x, y)
-
-def angle_in_cam_radians(angle_cam, gamma):
-    x, y = point_in_cam(angle_cam, gamma)
-    return math.atan(y / x)
-
-def point_cam_to_laser_co(x, y):
-    """
-    Делаем поворот системы координат камеры в систему координат сервы
-    """
-    ang = math.radians(fov / 2 - 20)
-    print(f'ang: {fov / 2 - 20}')
-    _x = x * math.cos(ang) + y * math.sin(ang)
-    _y = - x * math.sin(ang) + y * math.cos(ang)
-    #print(ang)
-    # 70deg - угол наклона камеры относительно плоскости основания
-    _x = _x - d
-    #_y = _y + (H - h)
-
-    return (_x, _y)
-
-def know_r(angle_cam, gamma, l):
-    cappa = angle_in_cam_radians(angle_cam, cappa_0 / 768)
-    betta = angle_in_cam_radians(angle_cam, gamma)
-    return (l * math.sin(betta) / ((1 - gamma) * math.sin(math.radians(fov)) * math.cos(betta - cappa)))
-
-def move_to_point(x, y, d):
-    """
-    Move to point by cx, cy, distance to wall
-    """
-    # Move by y
-    r = know_r(fov, y / 768, d)
-    x_y, y_y = point_in_cam(fov, y / 768)
-    x_y, y_y = x_y * r, y_y * r
-    print(f'x: {x_y}, y: {y_y}')
-    x_y, y_y = point_cam_to_laser_co(x_y, y_y)
-    print(f'x: {x_y}, y: {y_y}')
-    ang_y = math.degrees(math.atan(y_y / x_y))
-    print(ang_y)
-    servo.angle(ang_y)
-
-    # Move by x
-    r = know_r(foh, x / 1024, d)
-    x_x, y_x = point_in_cam(foh, x / 1024)
-    x_x, y_x = x_x * r, y_x * r
-    #x_x, y_x = point_cam_to_laser_co(x_x, y_x)
-    ang_x = math.degrees(math.atan(y_x / x_x))
-    print(ang_x)
-    #servo2.angle(ang_x)
-
+def get_dist_to_point(angle_to_point):
+    return L / math.cos(math.radians(180 - (angle_to_point + cam_angle_y)))
 
 def dist():
-    ...
+    """
+    dist_out = pyb.Pin('P3', pyb.Pin.OUT_PP)
+    dist_in = pyb.Pin('P4', pyb.Pin.IN)
+    """
+    # Сначала генерируем короткий импульс длительностью 2-5 микросекунд.
+    dist_out.value(0)
+    time.sleep_us(2)
+    dist_out.value(1)
+    # Выставив высокий уровень сигнала, ждем около 10 микросекунд. В этот момент датчик будет посылать сигналы с частотой 40 КГц.
+    time.sleep_us(10)
+    dist_out.value(0)
+    while dist_in.value() != 1:
+        ...
+    start = time.ticks_us()
+    while dist_in.value() != 0:
+        ...
+    t = time.ticks_us() - start
+    cm = t / (2 * 29.1)
+    pyb.delay(50)
+    return cm
+
+val_list = [0] * n
+ind = 0
+def run_middle_arifm(value):
+    global val_list
+    global ind
+    val_list[ind] = value
+    if ind + 1 >= n:
+        ind = 0
+    av = sum(val_list)
+    ind += 1
+    return av / n
+
+def get_point_angles(px_coords):
+    (px_x, px_y) = px_coords
+    px_x = -px_x + X/2
+    px_y = -px_y + Y/2
+
+    theta = 0.5*math.pi - \
+        math.atan((2.0*float(px_y)/Y) *
+                  math.tan(math.radians(0.5 * VFOV)))
+
+    phi = math.atan((2.0*float(px_x)/X) *
+                    math.tan(math.radians(0.5 * HFOV)))
+
+    r = get_dist_to_point(math.degrees(theta)) / math.cos(phi)
+
+    # Got r, phi, theta; how will get x, y, z
+    x = r * math.sin(theta) * math.cos(phi)
+    y = r * math.sin(theta) * math.sin(phi)
+    z = r * math.cos(theta)
+
+    point = vector_3d((x, y, z))
+
+    point.rotate(axis=1, angle=-(90 - cam_angle_y))
+
+    phi = math.degrees(phi)
+
+    _servo_1_pos = vector_3d(servo_1_pos.get_coords())
+
+    point = point - _servo_1_pos
+
+    _laser_pos = get_laser_pos(point)
+
+    point = point - _laser_pos
+
+    theta = math.degrees(math.atan(math.sqrt(point.x**2 + point.y**2)/point.z))
+
+    if theta < 0:
+        theta = -90 - theta
+    else:
+        theta = 90 - theta
+
+    if phi != 0.0:
+        phi = -phi
+
+# phi is an angle for servo_0, theta is for servo_1
+    return -1 * phi, theta
+
+
 
 def main():
     # Init
-    pyb.delay(50)
-
-    # Bla-bla
-
+    pyb.delay(10)
+    servo_0_pos = vector_3d((-6.65, 0.02, 1.14))
+    servo_1_pos = vector_3d((-0.43, -1.4, 1.38))
+    # Get dist to table
+    for _ in range(n):
+        L = run_middle_arifm(dist())
 
     # Get tick info: cx, cy, area in pixels AND distance to wall
     t_tick_x, t_tick_y, t_tick_area = 0, 0, 0
@@ -219,12 +262,24 @@ def main():
 
 def exp():
     laser.high()
-    #servo.angle(0)
-    #servo2.angle(0)
+    #servo.angle(39.33106130400911)
+    #servo2.angle(5.356361083573605)
+    for _ in range(n):
+        L = run_middle_arifm(dist())
+    points = [(659, 186), (205, 173)]
+    for p in points:
+        x_ang, y_ang = get_point_angles(p)
+
+        #img = sensor.snapshot()
+        servo.angle(y_ang)
+        servo2.angle(x_ang)
+        pyb.delay(5000)
+
+
     while True:
         img = sensor.snapshot()
-        pyb.delay(200)
-    move_to_point(486, 275, 206)
+        pyb.delay(500)
+    #move_to_point(486, 275, 206)
 
 if __name__ == '__main__':
     exp()
