@@ -87,6 +87,8 @@ def get_laser_pos(point: vector_3d, h_laser=1.42):
         x_2 = (x_1*h_laser**2 + sq_D) / (2*(x_1**2 + z_1**2))
         z_2 = math.sqrt(h_laser**2 - x_2**2)
 
+    return vector_3d((x_2, point.y, z_2))
+
 
 def sort_circles(circ, tick):
     """
