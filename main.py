@@ -1,10 +1,14 @@
-import sensor, image, time, pyb, math
+import sensor
+import image
+import time
+import pyb
+import math
 
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.XGA)
 sensor.skip_frames(time=2000)
-#sensor.set_auto_gain(False, 3.52183)
+# sensor.set_auto_gain(False, 3.52183)
 sensor.set_auto_whitebal(False, rgb_gain_db=(61.4454, 60.2071, 64.5892))
 sensor.set_vflip(True)
 sensor.set_hmirror(True)
@@ -29,6 +33,7 @@ X = 1024
 Y = 768
 VFOV = 81.9
 HFOV = 99
+
 
 class vector_3d:
     x = 0
@@ -67,6 +72,22 @@ class vector_3d:
         return (self.x, self.y, self.z)
 
 
+def get_laser_pos(point: vector_3d, h_laser=1.42):
+    x_1 = point.x
+    z_1 = point.z
+
+    D = 4*(x_1**2 * h_laser**4 - (x_1**2 + z_1**2)
+           * (h_laser**4 - z_1**2 * h_laser**2))
+    sq_D = math.sqrt(D)
+
+    if z_1 > 0:
+        x_2 = (x_1*h_laser**2 - sq_D) / (2*(x_1**2 + z_1**2))
+        z_2 = math.sqrt(h_laser**2 - x_2**2)
+    else:
+        x_2 = (x_1*h_laser**2 + sq_D) / (2*(x_1**2 + z_1**2))
+        z_2 = math.sqrt(h_laser**2 - x_2**2)
+
+
 def sort_circles(circ, tick):
     """
     Sort circles in true sign after sorting by distance
@@ -85,6 +106,7 @@ def sort_circles(circ, tick):
                 if x_c1 > x_c2:
                     circ[i], circ[i + 1] = circ[i + 1], circ[i]
 
+
 def find_circ():
     """
     Func to find blue circles in rois with roundness more than .6 and merge all
@@ -92,7 +114,8 @@ def find_circ():
     img = sensor.snapshot()
     img.lens_corr(strength=1.8)
     return img.find_blobs(trsh_blue, invert=False, roi=rois, merge=True, threshold_cb=lambda x: x.roundness() >= .4)
-    #return img.find_circles()
+    # return img.find_circles()
+
 
 def find_ticks():
     """
@@ -102,17 +125,19 @@ def find_ticks():
     img.lens_corr(strength=1.8)
     return img.find_blobs(trsh_oran, invert=False, roi=rois, merge=True)
 
+
 def draw_blobs():
     """
     Debug func to draw blobs including circles and tick(s)
     """
     img = sensor.snapshot()
     img.lens_corr(strength=1.8)
-    blobs_bl = img.find_blobs(trsh_blue, invert=False, roi=rois, merge=True, threshold_cb=lambda x: x.roundness() >= .6)
+    blobs_bl = img.find_blobs(trsh_blue, invert=False, roi=rois,
+                              merge=True, threshold_cb=lambda x: x.roundness() >= .6)
     blobs_or = img.find_blobs(trsh_oran, invert=False, roi=rois, merge=True)
     for blob in blobs_bl:
         img.draw_rectangle(blob.rect(), color=(0, 255, 0))
-        img.draw_cross(blob.cx(), blob.cy(), color=(0,255,0))
+        img.draw_cross(blob.cx(), blob.cy(), color=(0, 255, 0))
         pyb.delay(10)
 
     for blob in blobs_or:
@@ -120,8 +145,10 @@ def draw_blobs():
         img.draw_cross(blob.cx(), blob.cy(), color=(255, 0, 0))
         pyb.delay(10)
 
+
 def get_dist_to_point(angle_to_point):
     return L / math.cos(math.radians(180 - (angle_to_point + cam_angle_y)))
+
 
 def dist():
     """
@@ -145,8 +172,11 @@ def dist():
     pyb.delay(50)
     return cm
 
+
 val_list = [0] * n
 ind = 0
+
+
 def run_middle_arifm(value):
     global val_list
     global ind
@@ -156,6 +186,7 @@ def run_middle_arifm(value):
     av = sum(val_list)
     ind += 1
     return av / n
+
 
 def get_point_angles(px_coords):
     (px_x, px_y) = px_coords
@@ -204,7 +235,6 @@ def get_point_angles(px_coords):
     return -1 * phi, theta
 
 
-
 def main():
     # Init
     pyb.delay(10)
@@ -235,11 +265,13 @@ def main():
             t_circ_y[ind].append(element.cy())
     blue_circ_x = list(sum(i) // len(i) for i in t_circ_x if len(i) != 0)
     blue_circ_y = list(sum(i) // len(i) for i in t_circ_y if len(i) != 0)
-    blue_circs = list((blue_circ_x[i], blue_circ_y[i]) for i in range(len(find_circ())))
+    blue_circs = list((blue_circ_x[i], blue_circ_y[i])
+                      for i in range(len(find_circ())))
     button_value = button.value()
 
     # Now sort circles in true plan
-    blue_circs = sorted(blue_circs, key=lambda x: math.sqrt((x[0] - tick[0]) ** 2 + (x[1] - tick[1]) ** 2))
+    blue_circs = sorted(blue_circs, key=lambda x: math.sqrt(
+        (x[0] - tick[0]) ** 2 + (x[1] - tick[1]) ** 2))
     sort_circles(blue_circs, tick)
 
     px_area = 88 / tick_area
@@ -253,7 +285,7 @@ def main():
         blue_led.off()
         while button.value() == 0:
             pyb.delay(200)
-        move_to_point(circl[0], circl[1],distance)
+        move_to_point(circl[0], circl[1], distance)
         pyb.delay(200)
         blue_led.on()
         y_old = circl[1]
@@ -262,25 +294,25 @@ def main():
 
 def exp():
     laser.high()
-    #servo.angle(39.33106130400911)
-    #servo2.angle(5.356361083573605)
+    # servo.angle(39.33106130400911)
+    # servo2.angle(5.356361083573605)
     for _ in range(n):
         L = run_middle_arifm(dist())
     points = [(659, 186), (205, 173)]
     for p in points:
         x_ang, y_ang = get_point_angles(p)
 
-        #img = sensor.snapshot()
+        # img = sensor.snapshot()
         servo.angle(y_ang)
         servo2.angle(x_ang)
         pyb.delay(5000)
 
-
     while True:
         img = sensor.snapshot()
         pyb.delay(500)
-    #move_to_point(486, 275, 206)
+    # move_to_point(486, 275, 206)
+
 
 if __name__ == '__main__':
     exp()
-    #main()
+    # main()
